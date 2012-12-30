@@ -7,6 +7,8 @@ If[ $VersionNumber != 9,
     Abort[]
 ];
 
+RecoverDefaultCompletion[] := Null;
+
 camelParts[in_String]:=StringCases[in,_?(UpperCaseQ[#]||DigitQ[#]&)~~___?LowerCaseQ];
 
 (*
@@ -66,7 +68,35 @@ getOptionsMatch[pattern_String,opts_List]:=Module[{
 
 If[ StringMatchQ[$SystemID, "MacOSX*"] || StringMatchQ[$SystemID, "Windows*"],
 
-Null
+$originalCAFC = DownValues[CAFC];
+$originalOC = DownValues[OC];
+
+RecoverDefaultCompletion[] := Block[{},
+    Unprotect[CAFC];
+    DownValues[CAFC] = $originalCAFC;
+    Protect[CAFC];
+    Unprotect[OC];
+    DownValues[OC] = $originalOC;
+    Protect[OC];
+];
+
+Unprotect[CAFC];
+CAFC[nameString_, ignoreCase_:False]/;$Notebooks:=
+    MathLink`CallFrontEnd[
+        FrontEnd`CompletionsListPacket[Sequence@@getMatch[nameString, ignoreCase], Contexts["*"<>(nameString<>"*")]],
+        NoResult
+    ];
+Protect[CAFC];
+
+Unprotect[OC];
+OC[nameString_,patternString_]/;$Notebooks:=Module[
+    {opts=(ToString[#1]&)/@(InputForm[#1]&)/@Options[ToExpression[nameString]]},
+    MathLink`CallFrontEnd[
+        FrontEnd`OptionCompletionsListPacket[nameString,"",getOptionsMatch[patternString,opts]],
+        NoResult
+    ]
+];
+Protect[OC];
 
 ]; (* end of Mac and Windows implementation *)
 
