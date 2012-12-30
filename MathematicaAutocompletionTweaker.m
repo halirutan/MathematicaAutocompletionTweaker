@@ -9,16 +9,22 @@ If[ $VersionNumber != 9,
 
 camelParts[in_String]:=StringCases[in,_?(UpperCaseQ[#]||DigitQ[#]&)~~___?LowerCaseQ];
 
+(*
+
+(* Matching files will not work due to how the auto-completion of Mathematica is implemented !! *)
+
+getFileMatch[in_String] := Module[{file = StringDrop[in, 2]},
+  file = StringReplace[file, "`" :> $PathnameSeparator];
+  (StringReplace[#,$PathnameSeparator:>"`"]<>"`")&/@
+  If[file != "" && DirectoryQ[file],
+    FileNames["*", {file}],
+    FileNames[FileNameTake[file] <> "*", {DirectoryName[file]}]
+    ]
+  ]
+
+*)
+
 getMatch[""]={};
-getMatch[in_String, ignoreCase_]:=Module[
-    {exactUnfinishedMatches,packetPattern, camelMatches},
-    
-    exactUnfinishedMatches=Names[in<>"*", IgnoreCase -> ignoreCase];
-    packetPattern = StringTake[in,1];
-    camelMatches=StringCases[Names[packetPattern <> "*"],
-        StartOfString~~(StringExpression@@(#~~___?LowerCaseQ&/@camelParts[in]))~~___];
-    {StringTake[in,1], Union@Flatten@Join[exactUnfinishedMatches,camelMatches]}
-];
 
 getMatch[in_String/;Not[StringFreeQ[in,"`"]], ignoreCase_]:=Module[
     {exactUnfinishedMatches,camelMatches,pattern, packetPattern},
@@ -34,6 +40,18 @@ getMatch[in_String/;Not[StringFreeQ[in,"`"]], ignoreCase_]:=Module[
     ];
     {packetPattern, Union@Flatten@Join[exactUnfinishedMatches,camelMatches]}
 ];
+
+getMatch[in_String, ignoreCase_]:=Module[
+    {exactUnfinishedMatches,packetPattern, camelMatches},
+    
+    exactUnfinishedMatches=Names[in<>"*", IgnoreCase -> ignoreCase];
+    packetPattern = StringTake[in,1];
+    camelMatches=StringCases[Names[packetPattern <> "*"],
+        StartOfString~~(StringExpression@@(#~~___?LowerCaseQ&/@camelParts[in]))~~___];
+    {StringTake[in,1], Union@Flatten@Join[exactUnfinishedMatches,camelMatches]}
+];
+
+
 
 getOptionsMatch[_,{}]:={};
 getOptionsMatch[pattern_String,opts_List]:=Module[{
@@ -67,6 +85,21 @@ RecoverDefaultCompletion[] := Block[{},
 ];
 
 Unprotect[FC];
+
+(*
+
+(* Matching files will not work due to how the auto-completion of Mathematica is implemented !! *)
+
+
+FC[nameString_/;StringMatchQ[nameString,"``"~~___], _]/;$Notebooks:=
+    MathLink`CallFrontEnd[
+        FrontEnd`CompletionsListPacket["",
+            {StringDrop[StringReplace[nameString, "`":>$PathnameSeparator],2]}, getFileMatch[nameString]],
+        NoResult
+    ];
+
+*)
+
 FC[nameString_, ignoreCase_:False]/;$Notebooks:=
     MathLink`CallFrontEnd[
         FrontEnd`CompletionsListPacket[Sequence@@getMatch[nameString, ignoreCase], Contexts["*"<>(nameString<>"*")]],
