@@ -20,25 +20,27 @@ the arrow key to choose the right function.
 **Completion of usual function names** works now both ways:
 
 1. You get valid expansions if you type a *prefix* of the function like `Integ` for `IntegerDigits`.
-2. Additionally, you can type `IntDig`, `InDi` or just `ID` to get `IntegerDigits` too. Important is that you take care of the capital letters in the names.
+2. Additionally, you can type `IntDig`, `InDi` or just `ID` to get `IntegerDigits` too. Important is that you take care 
+of the capital letters in the names.
 
-> ![enter image description here][http://i.stack.imgur.com/8gwTv.gif]
+![enter image description here](http://i.stack.imgur.com/8gwTv.gif)
 
 Support for **completion of `Options`** was added too.
 
-> ![enter image description here][http://i.stack.imgur.com/Ly4aR.gif]
+![enter image description here](http://i.stack.imgur.com/Ly4aR.gif)
 
-Additionally, camel-humps even work **after context specifications**. Note, that the context-names themselves cannot be camel-humps expanded because in most cases like `Developer`, `Experimental`, `Internal`, etc. this would be useless anyway.
+Additionally, camel-humps even work **after context specifications**. Note, that the context-names themselves cannot 
+be camel-humps expanded because in most cases like `Developer`, `Experimental`, `Internal`, etc. this would be useless anyway.
 
-> ![enter image description here][http://i.stack.imgur.com/DoJWG.gif]
+![enter image description here](http://i.stack.imgur.com/DoJWG.gif)
 
-Additionally, when I had a first version of this running, I created a teaser screen-cast
+Additionally, when I had a first version of this running, I created a teaser screen-cast:
 
-<iframe width="1280" height="720" src="http://www.youtube.com/embed/4JMkR2OeUuI" frameborder="0" allowfullscreen></iframe>
+http://youtu.be/4JMkR2OeUuI
 
 or with classical music here
 
-<iframe width="1280" height="720" src="http://www.youtube.com/embed/iIG8_Pmzjn0" frameborder="0" allowfullscreen></iframe>
+http://youtu.be/iIG8_Pmzjn0
 
 (viewer from Germany have to watch this [without sound](http://youtu.be/mzFfNbl9sr4)
 
