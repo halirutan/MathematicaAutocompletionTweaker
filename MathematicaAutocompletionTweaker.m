@@ -1,11 +1,11 @@
-(* :Title: Code for camel-humps expansion in Mathematica *)
+(* :Title: Code for CamelCase expansion in Mathematica *)
 
 (* :Context: FE` *)
 
 (* :Author: halirutan *)
 
 (* :Summary: 
-    This provides a way to use an improved auto-completion with Mathematica 9.
+    This provides a way to use an improved autocomplete with Mathematica 9.
 *)
 
 (* :Package Version: 1.0 *)
@@ -18,7 +18,7 @@
 *)
 
 (* :Keywords:
-    code assist, auto-completion
+    code assist, autocomplete
 *)
 
 (* :Limitations:  What I try to achieve here has several limitations which are mainly because the frontend of 
@@ -38,8 +38,8 @@
     the symbol doesn't exists at all and therefore doesn't ask the kernel *on this keystroke*. 
     Example: typing "Li" gives a long list of all valid expansions. Appending then "LiL" (e.g. for ListLinePlot) 
     closes the suggestion box but does not ask the kernel again whether "LiL" can be expanded to a valid symbol.
-    As long as you don't work with camel-hump expansion this seems to be the correct assumption. However, since we will
-    use camel-humps it would be nice when the FE would ask the kernel about a valid expansion the moment we type the
+    As long as you don't work with CamelCase expansion this seems to be the correct assumption. However, since we will
+    use CamelCase it would be nice when the FE would ask the kernel about a valid expansion the moment we type the
     last "L" in "LiL". The consequence is that you have to type "LiLi" to get the suggestionbox with ListLinePlot 
     (I'm not sure whether this behaviour is consistent through all OS's).
     - Mathematica tries to guess the context to be able to call a special *options expanding function* when we are in the
@@ -49,30 +49,28 @@
     would not be approbriate. But one cannot change whether the front-end calls function or options expansion and
     an options expansion call always expects an OptionCompletionsListPacket as answer.
     *)
-
 Begin["FE`"];
-
 
 (* ::Section:: *)
 (* Functions for creating possible name-matches *)
 
 (**
-    This splits a word into its camel parts. So e.g. ListLinePlot would be split into
+    This splits a word into its CamelCase parts. So e.g. ListLinePlot would be split into
     List, Line and Plot. It makes a cut at every capital letter or number-digit.
 *)
-camelParts[in_String] := If[#==={}, {in}, #]&@StringCases[in,_?(UpperCaseQ[#]||DigitQ[#]&)~~___?LowerCaseQ];
+camelCaseParts[in_String] := If[#==={}, {in}, #]&@StringCases[in,_?(UpperCaseQ[#]||DigitQ[#]&)~~___?LowerCaseQ];
 
 (**
-    getMatch will be the main-function to calculate valid camel-humps expansions. It will always test two things:
+    getMatch will be the main-function to calculate valid CamelCase expansions. It will always test two things:
     (1) Does a normal expansion exist? E.g. ListLin could be expanded to ListLinePlot
-    (2) Does a camel-humps expansion exist? E.g. ListLP could be expanded to ListLinePlot
+    (2) Does a CamelCase expansion exist? E.g. ListLP could be expanded to ListLinePlot
 *)
 getMatch[""]={};
 
 (**
     This function is called when the pattern contains a backtick which suggests that we are dealing with contexts.
-    We don't do camel-humps expansion on context names since for most like Developer, Internal, Experimental, ...
-    this would be useless. Nevertheless, once you have a valid context prefix you can use camel-humps for the functions.
+    We don't do CamelCase expansion on context names since for most like Developer, Internal, Experimental, ...
+    this would be useless. Nevertheless, once you have a valid context prefix you can use CamelCase for the functions.
     Therefore, Developer`TPA should give you Developer`ToPackedArray as choice.
 *)
 getMatch[in_String/;Not[StringFreeQ[in,"`"]], ignoreCase_]:=Module[
@@ -85,7 +83,7 @@ getMatch[in_String/;Not[StringFreeQ[in,"`"]], ignoreCase_]:=Module[
         camelMatches={},
         packetPattern = First[pattern]<>StringTake[Last[pattern],1];
         camelMatches=Union@Flatten@StringCases[Names[packetPattern <> "*"],
-            StartOfString~~First[pattern]~~(StringExpression@@(#~~___?LowerCaseQ&/@camelParts[Last[pattern]]))~~___]
+            StartOfString~~First[pattern]~~(StringExpression@@(#~~___?LowerCaseQ&/@camelCaseParts[Last[pattern]]))~~___]
     ];
     {packetPattern, Union@Flatten@Join[exactUnfinishedMatches,camelMatches]}
 ];
@@ -99,7 +97,7 @@ getMatch[in_String, ignoreCase_]:=Module[
     exactUnfinishedMatches=Names[in<>"*", IgnoreCase -> ignoreCase];
     packetPattern = StringTake[in,1];
     camelMatches=Union@Flatten@StringCases[Names[packetPattern <> "*"],
-        StartOfString~~(StringExpression@@(#~~___?LowerCaseQ&/@camelParts[in]))~~___];
+        StartOfString~~(StringExpression@@(#~~___?LowerCaseQ&/@camelCaseParts[in]))~~___];
     {packetPattern, Union@Flatten@Join[exactUnfinishedMatches,camelMatches]}
 ];
 
@@ -116,32 +114,20 @@ getOptionsMatch[pattern_String,opts_List]:=Module[{
     camelMatches},
 
     exactUnfinishedMatches=StringCases[optnames,StartOfString~~pattern~~__];
-    camelMatches=StringCases[optnames,StartOfString~~(StringExpression@@(#~~___?LowerCaseQ&/@camelParts[pattern]))~~___];
+    camelMatches=StringCases[optnames,StartOfString~~(StringExpression@@(#~~___?LowerCaseQ&/@camelCaseParts[pattern]))~~___];
     Union@Flatten@StringCases[opts,#~~__&/@(Union@Flatten@Join[exactUnfinishedMatches,camelMatches])]
 ];
-
-getFileMatch[in_String/;StringMatchQ[in,"``"~~__]] := Module[{file = StringDrop[in, 2]},
-  file = StringReplace[file, "`" :> $PathnameSeparator];
-  (StringReplace[#,$PathnameSeparator:>"`"]<>"`")&/@
-  If[file != "" && DirectoryQ[file],
-    FileNames["*", {file},IgnoreCase -> False],
-    FileNames[FileNameTake[file] <> "*", {DirectoryName[file]}, IgnoreCase -> False]
-    ]
-]
-getFileMatch[___] := {};
-
 
 (* ::Section:: *)
 (* Injecting the new completion functions into the front-end functions *)
 
 
 (**
-    In Mathematica Version 9 the autocompletion is different on Linux and Windows. While Windows (and MacOSX) call
+    In Mathematica Version 9 the autocomplete is different on Linux and Windows. While Windows (and MacOSX) call
     FE`CAFC to ask the kernel for some valid suggestions for an input pattern, in Linux it's the function FE`FC.
     The function to expand Options is in all systems FC`OC. 
 *)
-
-If[ $VersionNumber == 9  && StringMatchQ[$SystemID, "MacOSX*" | "Windows*" ],
+If[ $VersionNumber == 9  && (StringMatchQ[$SystemID, "MacOSX*"] || StringMatchQ[$SystemID, "Windows*"]),
 
 If[ DownValues[RecoverDefaultCompletion] === {},
 	$originalCAFC = DownValues[CAFC];

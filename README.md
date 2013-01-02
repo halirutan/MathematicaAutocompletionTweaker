@@ -1,14 +1,14 @@
-Mathematica Auto-completion Tweaker
+Mathematica Autocompletion Tweaker
 ================================
 
-Changes the behavior of the auto-completion in Mathematica version 9 so that camel-humps completion can be used.
-Camel-humps allow not only expansion of prefixes like `Integ` for `IntegerDigits`, they allow additionally to specify
-the capital letters (the humps) in function-names only and therefore, e.g.  `ListLiPlo`, `ListLPlot` or even `LLP` can be 
+Changes the behavior of the autocompletion in Mathematica version 9 so that CamelCase completion can be used.
+CamelCase allows not only for the expansion of prefixes like `Integ` for `IntegerDigits`, it allows additionally to specify
+the capital letters (the humps) in function names only and therefore, e.g.  `ListLiPlo`, `ListLPlot` or even `LLP` can be 
 expanded to `ListLinePlot`.
 
 To be really fast with this kind of help you have to try avoiding arrow-keys for going down the suggestion list. 
 Instead, you should specify your wanted function further and further by leaving out the small letters between capital 
-camel-hump letters. A very good example is `Hypergeometric0F1`. Instead of typing `Hy` and going down the list very far, 
+CamelCase letters. A very good example is `Hypergeometric0F1`. Instead of typing `Hy` and going down the list very far, 
 you leave out 12 letters and type `Hy0`. In many, many cases this leads to only one unique choice of an expansion and 
 you only have to press <kbd>Enter</kbd> (or <kbd>Tab</kbd>) to accept it.
 
@@ -54,8 +54,11 @@ Get["http://goo.gl/wtVze"]
 ```
 
 In Mathematica 9 you should now see a suggestion box when you type e.g. `PP`. If you want to turn it off again can 
-restart the kernel or you use ``FE`RecoverDefaultCompletion[]``. If you want to install it permanently you can for 
-instance copy the contents of the package to your `init.m`.
+restart the kernel or you use ``FE`RecoverDefaultCompletion[]``. 
+
+If you want to install it permanently you can for instance copy the contents of `MathematicaAutocompletionTweaker.m` into
+your `init.m`. Given the case, that the autocompletion is really used by some users, I'll prepare an easier method
+to install small, system-specific code for permanently use.
 
 Related discussion on stackexchange
 ---
