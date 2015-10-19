@@ -1,7 +1,7 @@
 Mathematica Autocompletion Tweaker
 ================================
 
-Changes the behavior of the autocompletion in Mathematica version 9 so that CamelCase completion can be used.
+Changes the behavior of the autocompletion in Mathematica version 9.0.0 (**and unfortunately, it will only work in this very version!**) so that CamelCase completion can be used.
 CamelCase allows not only for the expansion of prefixes like `Integ` for `IntegerDigits`, it allows additionally to specify
 the capital letters (the humps) in function names only and therefore, e.g.  `ListLiPlo`, `ListLPlot` or even `LLP` can be 
 expanded to `ListLinePlot`.
